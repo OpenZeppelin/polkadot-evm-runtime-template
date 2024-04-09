@@ -1,5 +1,5 @@
 [workspace]
-members = [ "node", "runtime", "template-fuzzer", "primitives/account" ]
+members = [ "node", "primitives/account", "runtime", "template-fuzzer" ]
 resolver = "2"
 
 [workspace.package]
@@ -25,10 +25,10 @@ parity-scale-codec = { version = "3.0.0", default-features = false, features = [
 	"derive",
 	"max-encoded-len",
 ] }
-sha3 = { version = "0.10", default-features = false }
 scale-info = { version = "2.10.0", default-features = false }
 serde = { version = "1.0.188", default-features = false }
 serde_json = "1.0.108"
+sha3 = { version = "0.10", default-features = false }
 smallvec = "1.11.0"
 
 # Substrate
