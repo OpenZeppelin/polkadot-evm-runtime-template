@@ -523,7 +523,7 @@ impl pallet_balances::Config for Runtime {
 parameter_types! {
     pub const AssetDeposit: Balance = 10 * CENTS;
     pub const AssetAccountDeposit: Balance = deposit(1, 16);
-    pub const ApprovalDeposit: Balance = EXISTENTIAL_DEPOSIT;
+    pub const ApprovalDeposit: Balance = MILLICENTS;
     pub const StringLimit: u32 = 50;
     pub const MetadataDepositBase: Balance = deposit(1, 68);
     pub const MetadataDepositPerByte: Balance = deposit(0, 1);
