@@ -11,6 +11,7 @@ pub mod governance;
 mod weights;
 pub mod xcm_config;
 
+use account::{AccountId20, EthereumSignature};
 #[cfg(feature = "async-backing")]
 use cumulus_pallet_parachain_system::RelayNumberMonotonicallyIncreases;
 #[cfg(not(feature = "async-backing"))]
@@ -84,11 +85,11 @@ use crate::{
 
 /// Alias to 512-bit hash when used in the context of a transaction signature on
 /// the chain.
-pub type Signature = MultiSignature;
+pub type Signature = EthereumSignature;
 
 /// Some way of identifying an account on the chain. We intentionally make it
 /// equivalent to the public key of our transaction signing scheme.
-pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+pub type AccountId = AccountId20;
 
 /// Balance of an account.
 pub type Balance = u128;
