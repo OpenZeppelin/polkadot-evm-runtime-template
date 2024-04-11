@@ -7240,6 +7240,7 @@ dependencies = [
 name = "parachain-template-runtime"
 version = "0.1.2"
 dependencies = [
+ "account",
  "assets-common",
  "cumulus-pallet-aura-ext",
  "cumulus-pallet-parachain-system",

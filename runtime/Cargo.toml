@@ -92,6 +92,7 @@ substrate-wasm-builder = { workspace = true }
 [features]
 default = [ "std" ]
 std = [
+	"account/std",
 	"assets-common/std",
 	"cumulus-pallet-aura-ext/std",
 	"cumulus-pallet-parachain-system/std",
