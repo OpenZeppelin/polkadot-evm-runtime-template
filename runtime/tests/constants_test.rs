@@ -114,7 +114,7 @@ mod runtime_tests {
 
         assert_eq!(AssetAccountDeposit::get(), deposit(1, 16));
 
-        assert_eq!(ApprovalDeposit::get(), EXISTENTIAL_DEPOSIT);
+        assert_eq!(ApprovalDeposit::get(), MILLICENTS);
 
         assert_eq!(StringLimit::get(), 50);
 
