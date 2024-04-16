@@ -1612,6 +1612,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 
 [[package]]
+name = "core-primitives"
+version = "0.1.0"
+dependencies = [
+ "account",
+ "sp-core",
+ "sp-runtime",
+]
+
+[[package]]
 name = "core2"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7240,8 +7249,8 @@ dependencies = [
 name = "parachain-template-runtime"
 version = "0.1.2"
 dependencies = [
- "account",
  "assets-common",
+ "core-primitives",
  "cumulus-pallet-aura-ext",
  "cumulus-pallet-parachain-system",
  "cumulus-pallet-session-benchmarking",

@@ -11,7 +11,7 @@ version = "0.1.2"
 targets = [ "x86_64-unknown-linux-gnu" ]
 
 [dependencies]
-account = { workspace = true }
+core-primitives = { workspace = true }
 hex-literal = { workspace = true, optional = true }
 log = { workspace = true }
 parity-scale-codec = { workspace = true, features = [ "derive" ] }
@@ -92,8 +92,8 @@ substrate-wasm-builder = { workspace = true }
 [features]
 default = [ "std" ]
 std = [
-	"account/std",
 	"assets-common/std",
+	"core-primitives/std",
 	"cumulus-pallet-aura-ext/std",
 	"cumulus-pallet-parachain-system/std",
 	"cumulus-pallet-session-benchmarking/std",

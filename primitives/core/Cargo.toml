@@ -1,0 +1,20 @@
+[package]
+name = "core-primitives"
+authors = { workspace = true }
+edition = "2021"
+license = "GPL-3.0-only"
+repository = { workspace = true }
+version = "0.1.0"
+
+[dependencies]
+account = { workspace = true }
+sp-core = { workspace = true }
+sp-runtime = { workspace = true }
+
+[features]
+default = [ "std" ]
+std = [
+	"account/std",
+	"sp-core/std",
+	"sp-runtime/std",
+]

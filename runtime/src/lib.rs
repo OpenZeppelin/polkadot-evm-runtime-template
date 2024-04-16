@@ -11,7 +11,10 @@ pub mod governance;
 mod weights;
 pub mod xcm_config;
 
-use account::{AccountId20, EthereumSignature};
+pub use core_primitives::{
+    AccountId, AccountIndex, Address, AssetId, Balance, BlockNumber, DigestItem, Hash, Header,
+    Index, Signature,
+};
 #[cfg(feature = "async-backing")]
 use cumulus_pallet_parachain_system::RelayNumberMonotonicallyIncreases;
 #[cfg(not(feature = "async-backing"))]
@@ -83,31 +86,8 @@ use crate::{
     xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin},
 };
 
-/// Alias to 512-bit hash when used in the context of a transaction signature on
-/// the chain.
-pub type Signature = EthereumSignature;
-
-/// Some way of identifying an account on the chain. We intentionally make it
-/// equivalent to the public key of our transaction signing scheme.
-pub type AccountId = AccountId20;
-
-/// Balance of an account.
-pub type Balance = u128;
-
 /// Index of a transaction in the chain.
 pub type Nonce = u32;
-
-/// A hash of some data used by the chain.
-pub type Hash = sp_core::H256;
-
-/// An index to a block.
-pub type BlockNumber = u32;
-
-/// The address format for describing accounts.
-pub type Address = MultiAddress<AccountId, ()>;
-
-/// Block header type as expected by this runtime.
-pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
 
 /// Block type as expected by this runtime.
 pub type Block = generic::Block<Header, UncheckedExtrinsic>;

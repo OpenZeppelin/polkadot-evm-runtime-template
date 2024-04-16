@@ -11,6 +11,7 @@ repository = "https://github.com/OpenZeppelin/polkadot-runtime-template"
 
 [workspace.dependencies]
 account = { path = "primitives/account", default-features = false }
+core-primitives = { path = "primitives/core", default-features = false }
 blake2-rfc = { version = "0.2.18", default-features = false }
 clap = { version = "4.4.6", features = [ "derive" ] }
 color-print = "0.3.4"
