@@ -11,7 +11,7 @@ mod constant_tests {
 
         assert_eq!(DOLLARS, 100 * CENTS);
 
-        assert_eq!(EXISTENTIAL_DEPOSIT, MILLICENTS);
+        assert_eq!(EXISTENTIAL_DEPOSIT, 0);
 
         // Ensure deposit function behavior remains constant
         assert_eq!(deposit(2, 3), 2 * 15 * CENTS + 3 * 6 * CENTS);
@@ -114,7 +114,7 @@ mod runtime_tests {
 
         assert_eq!(AssetAccountDeposit::get(), deposit(1, 16));
 
-        assert_eq!(ApprovalDeposit::get(), EXISTENTIAL_DEPOSIT);
+        assert_eq!(ApprovalDeposit::get(), MILLICENTS);
 
         assert_eq!(StringLimit::get(), 50);
 
