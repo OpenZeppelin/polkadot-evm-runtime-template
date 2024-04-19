@@ -16,6 +16,7 @@ use cumulus_pallet_parachain_system::RelayNumberMonotonicallyIncreases;
 #[cfg(not(feature = "async-backing"))]
 use cumulus_pallet_parachain_system::RelayNumberStrictlyIncreases;
 use cumulus_primitives_core::{AggregateMessageOrigin, ParaId};
+use fp_account::EthereumSignature;
 use frame_support::{
     construct_runtime, derive_impl,
     dispatch::DispatchClass,
@@ -60,7 +61,7 @@ use sp_runtime::{
         AccountIdLookup, BlakeTwo256, Block as BlockT, IdentifyAccount, IdentityLookup, Verify,
     },
     transaction_validity::{TransactionSource, TransactionValidity},
-    ApplyExtrinsicResult, MultiSignature, RuntimeDebug,
+    ApplyExtrinsicResult, RuntimeDebug,
 };
 pub use sp_runtime::{MultiAddress, Perbill, Permill};
 use sp_std::prelude::*;
@@ -84,7 +85,7 @@ use crate::{
 
 /// Alias to 512-bit hash when used in the context of a transaction signature on
 /// the chain.
-pub type Signature = fp_ethereum::EthereumSignature;
+pub type Signature = EthereumSignature;
 
 /// Some way of identifying an account on the chain. We intentionally make it
 /// equivalent to the public key of our transaction signing scheme.
