@@ -9,11 +9,11 @@ use polkadot_parachain_primitives::primitives::Sibling;
 use polkadot_runtime_common::impls::ToAuthor;
 use xcm::latest::prelude::*;
 use xcm_builder::{
-    AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowTopLevelPaidExecutionFrom,
+    AccountKey20Aliases, AllowExplicitUnpaidExecutionFrom, AllowTopLevelPaidExecutionFrom,
     DenyReserveTransferToRelayChain, DenyThenTry, EnsureXcmOrigin, FixedWeightBounds,
     FrameTransactionalProcessor, FungibleAdapter, FungiblesAdapter, IsConcrete, NativeAsset,
     NoChecking, ParentIsPreset, RelayChainAsNative, SiblingParachainAsNative,
-    SiblingParachainConvertsVia, SignedAccountId32AsNative, SignedToAccountId32,
+    SiblingParachainConvertsVia, SignedAccountKey20AsNative, SignedToAccountId32,
     SovereignSignedViaLocation, TakeWeightCredit, TrailingSetTopicAsId, UsingComponents,
     WithComputedOrigin, WithUniqueTopic,
 };
@@ -47,8 +47,8 @@ pub type LocationToAccountId = (
     ParentIsPreset<AccountId>,
     // Sibling parachain origins convert to AccountId via the `ParaId::into`.
     SiblingParachainConvertsVia<Sibling, AccountId>,
-    // Straight up local `AccountId32` origins just alias directly to `AccountId`.
-    AccountId32Aliases<RelayNetwork, AccountId>,
+    // If we receive a Location of type AccountKey20, just generate a native account
+    AccountKey20Aliases<RelayNetwork, AccountId>,
 );
 
 /// Means for transacting assets on this chain.
@@ -100,9 +100,9 @@ pub type XcmOriginToTransactDispatchOrigin = (
     // Native converter for sibling Parachains; will convert to a `SiblingPara` origin when
     // recognized.
     SiblingParachainAsNative<cumulus_pallet_xcm::Origin, RuntimeOrigin>,
-    // Native signed account converter; this just converts an `AccountId32` origin into a normal
-    // `RuntimeOrigin::Signed` origin of the same 32-byte value.
-    SignedAccountId32AsNative<RelayNetwork, RuntimeOrigin>,
+    // Xcm Origins defined by a Multilocation of type AccountKey20 can be converted to a 20 byte-
+    // account local origin
+    SignedAccountKey20AsNative<RelayNetwork, RuntimeOrigin>,
     // Xcm origins can be represented natively under the Xcm pallet's Xcm origin.
     XcmPassthrough<RuntimeOrigin>,
 );
