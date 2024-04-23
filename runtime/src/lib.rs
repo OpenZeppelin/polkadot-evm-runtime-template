@@ -83,10 +83,10 @@ use crate::{
     xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin},
 };
 
-/// Alias to 512-bit hash when used in the context of an Ethereum transaction signature.
+/// Ethereum Signature
 pub type Signature = EthereumSignature;
 
-/// AccountId20 type
+/// AccountId20 because 20 bytes long like H160 Ethereum Addresses
 pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
 
 /// Balance of an account.
