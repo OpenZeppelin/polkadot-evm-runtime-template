@@ -5,7 +5,7 @@ use parachain_template_runtime::{
 use sc_chain_spec::{ChainSpecExtension, ChainSpecGroup};
 use sc_service::ChainType;
 use serde::{Deserialize, Serialize};
-use sp_core::{sr25519, Pair, Public};
+use sp_core::{ecdsa, Pair, Public};
 use sp_runtime::traits::{IdentifyAccount, Verify};
 
 /// Specialized `ChainSpec` for the normal parachain runtime.
@@ -88,29 +88,26 @@ pub fn development_config() -> ChainSpec {
         // initial collators.
         vec![
             (
-                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                get_account_id_from_seed::<ecdsa::Public>("Alice"),
                 get_collator_keys_from_seed("Alice"),
             ),
-            (
-                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                get_collator_keys_from_seed("Bob"),
-            ),
+            (get_account_id_from_seed::<ecdsa::Public>("Bob"), get_collator_keys_from_seed("Bob")),
         ],
         vec![
-            get_account_id_from_seed::<sr25519::Public>("Alice"),
-            get_account_id_from_seed::<sr25519::Public>("Bob"),
-            get_account_id_from_seed::<sr25519::Public>("Charlie"),
-            get_account_id_from_seed::<sr25519::Public>("Dave"),
-            get_account_id_from_seed::<sr25519::Public>("Eve"),
-            get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-            get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Alice"),
+            get_account_id_from_seed::<ecdsa::Public>("Bob"),
+            get_account_id_from_seed::<ecdsa::Public>("Charlie"),
+            get_account_id_from_seed::<ecdsa::Public>("Dave"),
+            get_account_id_from_seed::<ecdsa::Public>("Eve"),
+            get_account_id_from_seed::<ecdsa::Public>("Ferdie"),
+            get_account_id_from_seed::<ecdsa::Public>("Alice//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Bob//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Charlie//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Dave//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Eve//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Ferdie//stash"),
         ],
-        get_account_id_from_seed::<sr25519::Public>("Alice"),
+        get_account_id_from_seed::<ecdsa::Public>("Alice"),
         1000.into(),
     ))
     .build()
@@ -140,29 +137,26 @@ pub fn local_testnet_config() -> ChainSpec {
         // initial collators.
         vec![
             (
-                get_account_id_from_seed::<sr25519::Public>("Alice"),
+                get_account_id_from_seed::<ecdsa::Public>("Alice"),
                 get_collator_keys_from_seed("Alice"),
             ),
-            (
-                get_account_id_from_seed::<sr25519::Public>("Bob"),
-                get_collator_keys_from_seed("Bob"),
-            ),
+            (get_account_id_from_seed::<ecdsa::Public>("Bob"), get_collator_keys_from_seed("Bob")),
         ],
         vec![
-            get_account_id_from_seed::<sr25519::Public>("Alice"),
-            get_account_id_from_seed::<sr25519::Public>("Bob"),
-            get_account_id_from_seed::<sr25519::Public>("Charlie"),
-            get_account_id_from_seed::<sr25519::Public>("Dave"),
-            get_account_id_from_seed::<sr25519::Public>("Eve"),
-            get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-            get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-            get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Alice"),
+            get_account_id_from_seed::<ecdsa::Public>("Bob"),
+            get_account_id_from_seed::<ecdsa::Public>("Charlie"),
+            get_account_id_from_seed::<ecdsa::Public>("Dave"),
+            get_account_id_from_seed::<ecdsa::Public>("Eve"),
+            get_account_id_from_seed::<ecdsa::Public>("Ferdie"),
+            get_account_id_from_seed::<ecdsa::Public>("Alice//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Bob//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Charlie//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Dave//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Eve//stash"),
+            get_account_id_from_seed::<ecdsa::Public>("Ferdie//stash"),
         ],
-        get_account_id_from_seed::<sr25519::Public>("Alice"),
+        get_account_id_from_seed::<ecdsa::Public>("Alice"),
         1000.into(),
     ))
     .with_protocol_id("template-local")
