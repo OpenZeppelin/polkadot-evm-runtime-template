@@ -7,6 +7,7 @@
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
 pub mod constants;
+pub mod fees;
 pub mod governance;
 mod weights;
 pub mod xcm_config;
@@ -83,12 +84,10 @@ use crate::{
     xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin},
 };
 
-/// Alias to 512-bit hash when used in the context of a transaction signature on
-/// the chain.
+/// Alias to 512-bit hash when used in the context of an Ethereum transaction signature.
 pub type Signature = EthereumSignature;
 
-/// Some way of identifying an account on the chain. We intentionally make it
-/// equivalent to the public key of our transaction signing scheme.
+/// AccountId20 type
 pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
 
 /// Balance of an account.

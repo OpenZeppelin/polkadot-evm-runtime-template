@@ -6,22 +6,21 @@ use frame_support::{
 use frame_system::EnsureRoot;
 use pallet_xcm::XcmPassthrough;
 use polkadot_parachain_primitives::primitives::Sibling;
-use polkadot_runtime_common::impls::ToAuthor;
 use xcm::latest::prelude::*;
 use xcm_builder::{
     AccountKey20Aliases, AllowExplicitUnpaidExecutionFrom, AllowTopLevelPaidExecutionFrom,
     DenyReserveTransferToRelayChain, DenyThenTry, EnsureXcmOrigin, FixedWeightBounds,
     FrameTransactionalProcessor, FungibleAdapter, FungiblesAdapter, IsConcrete, NativeAsset,
     NoChecking, ParentIsPreset, RelayChainAsNative, SiblingParachainAsNative,
-    SiblingParachainConvertsVia, SignedAccountKey20AsNative, SignedToAccountId32,
-    SovereignSignedViaLocation, TakeWeightCredit, TrailingSetTopicAsId, UsingComponents,
-    WithComputedOrigin, WithUniqueTopic,
+    SiblingParachainConvertsVia, SignedAccountKey20AsNative, SovereignSignedViaLocation,
+    TakeWeightCredit, TrailingSetTopicAsId, UsingComponents, WithComputedOrigin, WithUniqueTopic,
 };
 use xcm_executor::XcmExecutor;
 
 use super::{
-    AccountId, AllPalletsWithSystem, Assets, Balance, Balances, ParachainInfo, ParachainSystem,
-    PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
+    fees::ToAuthor, AccountId, AllPalletsWithSystem, Assets, Balance, Balances, ParachainInfo,
+    ParachainSystem, PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee,
+    XcmpQueue,
 };
 
 parameter_types! {
@@ -30,6 +29,8 @@ parameter_types! {
     pub PlaceholderAccount: AccountId = PolkadotXcm::check_account();
     pub AssetsPalletLocation: Location =
         PalletInstance(<Assets as PalletInfoAccess>::index() as u8).into();
+    pub BalancesPalletLocation: Location =
+        PalletInstance(<Balances as PalletInfoAccess>::index() as u8).into();
     pub RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
     pub UniversalLocation: InteriorLocation = Parachain(ParachainInfo::parachain_id().into()).into();
 }
@@ -56,8 +57,8 @@ pub type LocalAssetTransactor = FungibleAdapter<
     // Use this currency:
     Balances,
     // Use this currency when it is a fungible asset matching the given location or name:
-    IsConcrete<RelayLocation>,
-    // Do a simple punn to convert an AccountId32 Location into a native chain account ID:
+    IsConcrete<BalancesPalletLocation>,
+    // Do a simple punn to convert an AccountId20 Location into a native chain account ID:
     LocationToAccountId,
     // Our chain's account ID type (we can't get away without mentioning it explicitly):
     AccountId,
@@ -171,8 +172,31 @@ impl xcm_executor::Config for XcmConfig {
     type XcmSender = XcmRouter;
 }
 
-/// No local origins on this chain are allowed to dispatch XCM sends/executions.
-pub type LocalOriginToLocation = SignedToAccountId32<RuntimeOrigin, AccountId, RelayNetwork>;
+use frame_support::{pallet_prelude::Get, traits::OriginTrait};
+use sp_runtime::traits::TryConvert;
+
+// Convert a local Origin (i.e., a signed 20 byte account Origin)  to a Multilocation
+pub struct SignedToAccountId20<Origin, AccountId, Network>(
+    sp_std::marker::PhantomData<(Origin, AccountId, Network)>,
+);
+impl<Origin: OriginTrait + Clone, AccountId: Into<[u8; 20]>, Network: Get<NetworkId>>
+    TryConvert<Origin, Location> for SignedToAccountId20<Origin, AccountId, Network>
+where
+    Origin::PalletsOrigin: From<frame_system::RawOrigin<AccountId>>
+        + TryInto<frame_system::RawOrigin<AccountId>, Error = Origin::PalletsOrigin>,
+{
+    fn try_convert(o: Origin) -> Result<Location, Origin> {
+        o.try_with_caller(|caller| match caller.try_into() {
+            Ok(frame_system::RawOrigin::Signed(who)) =>
+                Ok(AccountKey20 { key: who.into(), network: Some(Network::get()) }.into()),
+            Ok(other) => Err(other.into()),
+            Err(other) => Err(other),
+        })
+    }
+}
+
+// Converts a Signed Local Origin into a Location
+pub type LocalOriginToLocation = SignedToAccountId20<RuntimeOrigin, AccountId, RelayNetwork>;
 
 /// The means for routing XCM messages which are not for local execution into
 /// the right message queues.
