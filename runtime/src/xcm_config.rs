@@ -18,19 +18,16 @@ use xcm_builder::{
 use xcm_executor::XcmExecutor;
 
 use super::{
-    fees::ToAuthor, AccountId, AllPalletsWithSystem, Assets, Balance, Balances, ParachainInfo,
-    ParachainSystem, PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee,
-    XcmpQueue,
+    AccountId, AllPalletsWithSystem, Assets, Balance, Balances, ParachainInfo, ParachainSystem,
+    PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
 };
 
 parameter_types! {
     pub const RelayLocation: Location = Location::parent();
-    pub const RelayNetwork: Option<NetworkId> = None;
+    pub const RelayNetwork: NetworkId = NetworkId::Polkadot;
     pub PlaceholderAccount: AccountId = PolkadotXcm::check_account();
     pub AssetsPalletLocation: Location =
         PalletInstance(<Assets as PalletInfoAccess>::index() as u8).into();
-    pub BalancesPalletLocation: Location =
-        PalletInstance(<Balances as PalletInfoAccess>::index() as u8).into();
     pub RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
     pub UniversalLocation: InteriorLocation = Parachain(ParachainInfo::parachain_id().into()).into();
 }
@@ -57,7 +54,7 @@ pub type LocalAssetTransactor = FungibleAdapter<
     // Use this currency:
     Balances,
     // Use this currency when it is a fungible asset matching the given location or name:
-    IsConcrete<BalancesPalletLocation>,
+    IsConcrete<RelayLocation>,
     // Do a simple punn to convert an AccountId20 Location into a native chain account ID:
     LocationToAccountId,
     // Our chain's account ID type (we can't get away without mentioning it explicitly):
@@ -139,6 +136,27 @@ pub type Barrier = TrailingSetTopicAsId<
         ),
     >,
 >;
+
+use frame_support::traits::{
+    fungible::{Balanced, Credit},
+    OnUnbalanced,
+};
+
+/// Logic for the author to get a portion of fees.
+/// TODO: move to XCM Config above where it is used
+pub struct ToAuthor<R>(sp_std::marker::PhantomData<R>);
+impl<R> OnUnbalanced<Credit<R::AccountId, pallet_balances::Pallet<R>>> for ToAuthor<R>
+where
+    R: pallet_balances::Config + pallet_authorship::Config,
+{
+    fn on_nonzero_unbalanced(
+        amount: Credit<<R as frame_system::Config>::AccountId, pallet_balances::Pallet<R>>,
+    ) {
+        if let Some(author) = <pallet_authorship::Pallet<R>>::author() {
+            let _ = <pallet_balances::Pallet<R>>::resolve(&author, amount);
+        }
+    }
+}
 
 pub struct XcmConfig;
 impl xcm_executor::Config for XcmConfig {
