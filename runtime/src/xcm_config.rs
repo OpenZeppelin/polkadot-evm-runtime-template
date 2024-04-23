@@ -24,7 +24,7 @@ use super::{
 
 parameter_types! {
     pub const RelayLocation: Location = Location::parent();
-    pub const RelayNetwork: NetworkId = NetworkId::Polkadot;
+    pub const RelayNetwork: Option<NetworkId> = None;
     pub PlaceholderAccount: AccountId = PolkadotXcm::check_account();
     pub AssetsPalletLocation: Location =
         PalletInstance(<Assets as PalletInfoAccess>::index() as u8).into();
@@ -175,7 +175,7 @@ use sp_runtime::traits::TryConvert;
 pub struct SignedToAccountId20<Origin, AccountId, Network>(
     sp_std::marker::PhantomData<(Origin, AccountId, Network)>,
 );
-impl<Origin: OriginTrait + Clone, AccountId: Into<[u8; 20]>, Network: Get<NetworkId>>
+impl<Origin: OriginTrait + Clone, AccountId: Into<[u8; 20]>, Network: Get<Option<NetworkId>>>
     TryConvert<Origin, Location> for SignedToAccountId20<Origin, AccountId, Network>
 where
     Origin::PalletsOrigin: From<frame_system::RawOrigin<AccountId>>
@@ -184,7 +184,7 @@ where
     fn try_convert(o: Origin) -> Result<Location, Origin> {
         o.try_with_caller(|caller| match caller.try_into() {
             Ok(frame_system::RawOrigin::Signed(who)) =>
-                Ok(AccountKey20 { key: who.into(), network: Some(Network::get()) }.into()),
+                Ok(AccountKey20 { key: who.into(), network: Network::get() }.into()),
             Ok(other) => Err(other.into()),
             Err(other) => Err(other),
         })
