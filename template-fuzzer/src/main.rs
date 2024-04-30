@@ -8,10 +8,9 @@ use frame_support::{
     weights::{constants::WEIGHT_REF_TIME_PER_SECOND, Weight},
 };
 use parachain_template_runtime::{
-    AllPalletsWithSystem, Balance, Balances, BlockNumber, Executive, Runtime, RuntimeCall,
-    RuntimeOrigin, SudoConfig, UncheckedExtrinsic, SLOT_DURATION,
+    AccountId, AllPalletsWithSystem, Balance, Balances, BlockNumber, Executive, Runtime,
+    RuntimeCall, RuntimeOrigin, SudoConfig, UncheckedExtrinsic, SLOT_DURATION,
 };
-use parachains_common::AccountId;
 use sp_consensus_aura::AURA_ENGINE_ID;
 use sp_runtime::{
     traits::{Dispatchable, Header},
@@ -46,11 +45,11 @@ fn main() {
             session: SessionConfig {
                 keys: initial_authorities
                     .iter()
-                    .map(|x| (x.0.clone(), x.0.clone(), SessionKeys { aura: x.1.clone() }))
+                    .map(|x| (x.0, x.0, SessionKeys { aura: x.1.clone() }))
                     .collect::<Vec<_>>(),
             },
             collator_selection: CollatorSelectionConfig {
-                invulnerables: initial_authorities.iter().map(|x| (x.0.clone())).collect(),
+                invulnerables: initial_authorities.iter().map(|x| x.0).collect(),
                 candidacy_bond: 1 << 57,
                 desired_candidates: 1,
             },
@@ -196,7 +195,7 @@ fn main() {
             }
 
             externalities.execute_with(|| {
-                let origin_account = endowed_accounts[origin % endowed_accounts.len()].clone();
+                let origin_account = endowed_accounts[origin % endowed_accounts.len()];
                 #[cfg(not(fuzzing))]
                 {
                     println!("\n    origin:     {origin_account:?}");
@@ -256,13 +255,13 @@ fn main() {
                 counted_reserved += acc.1.data.reserved;
                 // Check that locks and holds are valid.
                 let max_lock: Balance =
-                    Balances::locks(&acc.0).iter().map(|l| l.amount).max().unwrap_or_default();
+                    Balances::locks(acc.0).iter().map(|l| l.amount).max().unwrap_or_default();
                 assert_eq!(
                     max_lock, acc.1.data.frozen,
                     "Max lock should be equal to frozen balance"
                 );
                 let sum_holds: Balance =
-                    pallet_balances::Holds::<Runtime>::get(&acc.0).iter().map(|l| l.amount).sum();
+                    pallet_balances::Holds::<Runtime>::get(acc.0).iter().map(|l| l.amount).sum();
                 assert!(
                     sum_holds <= acc.1.data.reserved,
                     "Sum of all holds ({sum_holds}) should be less than or equal to reserved \

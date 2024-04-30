@@ -128,6 +128,9 @@ pallet-collator-selection = { git = "https://github.com/paritytech/polkadot-sdk"
 parachain-info = { package = "staging-parachain-info", git = "https://github.com/paritytech/polkadot-sdk", default-features = false, tag = "polkadot-v1.7.0" }
 parachains-common = { git = "https://github.com/paritytech/polkadot-sdk", default-features = false, tag = "polkadot-v1.7.0" }
 
+# Frontier
+fp-account = { git = "https://github.com/OpenZeppelin/frontier", branch = "polkadot-v1.7.0", default-features = false, features = [ "serde" ] }
+
 # Fuzzer
 substrate-runtime-fuzzer = { git = "https://github.com/srlabs/substrate-runtime-fuzzer.git", default-features = false }
 ziggy = { version = "0.8", default-features = false }

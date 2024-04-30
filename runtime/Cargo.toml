@@ -82,6 +82,9 @@ pallet-collator-selection = { workspace = true }
 parachain-info = { workspace = true }
 parachains-common = { workspace = true }
 
+# Frontier
+fp-account = { workspace = true }
+
 [dev-dependencies]
 sp-io = { workspace = true }
 
@@ -99,6 +102,7 @@ std = [
 	"cumulus-pallet-xcmp-queue/std",
 	"cumulus-primitives-core/std",
 	"cumulus-primitives-utility/std",
+	"fp-account/std",
 	"frame-benchmarking?/std",
 	"frame-executive/std",
 	"frame-support/std",

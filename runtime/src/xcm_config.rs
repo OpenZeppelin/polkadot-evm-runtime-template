@@ -6,16 +6,14 @@ use frame_support::{
 use frame_system::EnsureRoot;
 use pallet_xcm::XcmPassthrough;
 use polkadot_parachain_primitives::primitives::Sibling;
-use polkadot_runtime_common::impls::ToAuthor;
 use xcm::latest::prelude::*;
 use xcm_builder::{
-    AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowTopLevelPaidExecutionFrom,
+    AccountKey20Aliases, AllowExplicitUnpaidExecutionFrom, AllowTopLevelPaidExecutionFrom,
     DenyReserveTransferToRelayChain, DenyThenTry, EnsureXcmOrigin, FixedWeightBounds,
     FrameTransactionalProcessor, FungibleAdapter, FungiblesAdapter, IsConcrete, NativeAsset,
     NoChecking, ParentIsPreset, RelayChainAsNative, SiblingParachainAsNative,
-    SiblingParachainConvertsVia, SignedAccountId32AsNative, SignedToAccountId32,
-    SovereignSignedViaLocation, TakeWeightCredit, TrailingSetTopicAsId, UsingComponents,
-    WithComputedOrigin, WithUniqueTopic,
+    SiblingParachainConvertsVia, SignedAccountKey20AsNative, SovereignSignedViaLocation,
+    TakeWeightCredit, TrailingSetTopicAsId, UsingComponents, WithComputedOrigin, WithUniqueTopic,
 };
 use xcm_executor::XcmExecutor;
 
@@ -47,8 +45,8 @@ pub type LocationToAccountId = (
     ParentIsPreset<AccountId>,
     // Sibling parachain origins convert to AccountId via the `ParaId::into`.
     SiblingParachainConvertsVia<Sibling, AccountId>,
-    // Straight up local `AccountId32` origins just alias directly to `AccountId`.
-    AccountId32Aliases<RelayNetwork, AccountId>,
+    // If we receive a Location of type AccountKey20, just generate a native account
+    AccountKey20Aliases<RelayNetwork, AccountId>,
 );
 
 /// Means for transacting assets on this chain.
@@ -57,7 +55,7 @@ pub type LocalAssetTransactor = FungibleAdapter<
     Balances,
     // Use this currency when it is a fungible asset matching the given location or name:
     IsConcrete<RelayLocation>,
-    // Do a simple punn to convert an AccountId32 Location into a native chain account ID:
+    // Do a simple punn to convert an AccountId20 Location into a native chain account ID:
     LocationToAccountId,
     // Our chain's account ID type (we can't get away without mentioning it explicitly):
     AccountId,
@@ -100,9 +98,9 @@ pub type XcmOriginToTransactDispatchOrigin = (
     // Native converter for sibling Parachains; will convert to a `SiblingPara` origin when
     // recognized.
     SiblingParachainAsNative<cumulus_pallet_xcm::Origin, RuntimeOrigin>,
-    // Native signed account converter; this just converts an `AccountId32` origin into a normal
-    // `RuntimeOrigin::Signed` origin of the same 32-byte value.
-    SignedAccountId32AsNative<RelayNetwork, RuntimeOrigin>,
+    // Xcm Origins defined by a Multilocation of type AccountKey20 can be converted to a 20 byte-
+    // account local origin
+    SignedAccountKey20AsNative<RelayNetwork, RuntimeOrigin>,
     // Xcm origins can be represented natively under the Xcm pallet's Xcm origin.
     XcmPassthrough<RuntimeOrigin>,
 );
@@ -161,8 +159,7 @@ impl xcm_executor::Config for XcmConfig {
     type RuntimeCall = RuntimeCall;
     type SafeCallFilter = Everything;
     type SubscriptionService = PolkadotXcm;
-    type Trader =
-        UsingComponents<WeightToFee, RelayLocation, AccountId, Balances, ToAuthor<Runtime>>;
+    type Trader = UsingComponents<WeightToFee, RelayLocation, AccountId, Balances, ()>;
     type TransactionalProcessor = FrameTransactionalProcessor;
     type UniversalAliases = Nothing;
     // Teleporting is disabled.
@@ -171,8 +168,31 @@ impl xcm_executor::Config for XcmConfig {
     type XcmSender = XcmRouter;
 }
 
-/// No local origins on this chain are allowed to dispatch XCM sends/executions.
-pub type LocalOriginToLocation = SignedToAccountId32<RuntimeOrigin, AccountId, RelayNetwork>;
+use frame_support::{pallet_prelude::Get, traits::OriginTrait};
+use sp_runtime::traits::TryConvert;
+
+// Convert a local Origin (i.e., a signed 20 byte account Origin)  to a Multilocation
+pub struct SignedToAccountId20<Origin, AccountId, Network>(
+    sp_std::marker::PhantomData<(Origin, AccountId, Network)>,
+);
+impl<Origin: OriginTrait + Clone, AccountId: Into<[u8; 20]>, Network: Get<Option<NetworkId>>>
+    TryConvert<Origin, Location> for SignedToAccountId20<Origin, AccountId, Network>
+where
+    Origin::PalletsOrigin: From<frame_system::RawOrigin<AccountId>>
+        + TryInto<frame_system::RawOrigin<AccountId>, Error = Origin::PalletsOrigin>,
+{
+    fn try_convert(o: Origin) -> Result<Location, Origin> {
+        o.try_with_caller(|caller| match caller.try_into() {
+            Ok(frame_system::RawOrigin::Signed(who)) =>
+                Ok(AccountKey20 { key: who.into(), network: Network::get() }.into()),
+            Ok(other) => Err(other.into()),
+            Err(other) => Err(other),
+        })
+    }
+}
+
+// Converts a Signed Local Origin into a Location
+pub type LocalOriginToLocation = SignedToAccountId20<RuntimeOrigin, AccountId, RelayNetwork>;
 
 /// The means for routing XCM messages which are not for local execution into
 /// the right message queues.
