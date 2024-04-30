@@ -61,8 +61,7 @@ use smallvec::smallvec;
 use sp_api::impl_runtime_apis;
 pub use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_core::{
-    crypto::{ByteArray, KeyTypeId},
-    OpaqueMetadata, H160, H256, U256,
+    crypto::{ByteArray, KeyTypeId}, ecdsa, OpaqueMetadata, H160, H256, U256
 };
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
@@ -75,6 +74,7 @@ use sp_runtime::{
     transaction_validity::{TransactionSource, TransactionValidity},
     ApplyExtrinsicResult, ConsensusEngineId, RuntimeDebug,
 };
+use sp_application_crypto::ecdsa::AppPublic as EthPublic;
 pub use sp_runtime::{MultiAddress, Perbill, Permill};
 use sp_std::{marker::PhantomData, prelude::*};
 #[cfg(feature = "std")]
@@ -862,10 +862,9 @@ impl pallet_evm::Config for Runtime {
     type ChainId = EVMChainId;
     type Currency = Balances;
     type FeeCalculator = BaseFee;
-    type FindAuthor = FindAuthorTruncated<Aura>;
+    type FindAuthor = FindAuthorSession<Aura>;
     type GasLimitPovSizeRatio = GasLimitPovSizeRatio;
     type GasWeightMapping = pallet_evm::FixedGasWeightMapping<Self>;
-    // TODO: pass fees to the validator
     type OnChargeTransaction = EVMCurrencyAdapter<Balances, ()>;
     type OnCreate = ();
     // FIXME: Will be implemented in #11
@@ -913,15 +912,15 @@ impl pallet_base_fee::Config for Runtime {
     type Threshold = BaseFeeThreshold;
 }
 
-pub struct FindAuthorTruncated<F>(PhantomData<F>);
-impl<F: FindAuthor<u32>> FindAuthor<H160> for FindAuthorTruncated<F> {
+pub struct FindAuthorSession<F>(PhantomData<F>);
+impl<F: FindAuthor<u32>> FindAuthor<H160> for FindAuthorSession<F> {
     fn find_author<'a, I>(digests: I) -> Option<H160>
     where
         I: 'a + IntoIterator<Item = (ConsensusEngineId, &'a [u8])>,
     {
         if let Some(author_index) = F::find_author(digests) {
-            let authority_id = Aura::authorities()[author_index as usize].clone();
-            return Some(H160::from_slice(&authority_id.to_raw_vec()[4..24]));
+            let account_id: AccountId = Session::validators()[author_index as usize].clone();
+            return Some(H160::from(account_id));
         }
         None
     }
