@@ -916,7 +916,7 @@ impl<F: FindAuthor<u32>> FindAuthor<H160> for FindAuthorSession<F> {
         I: 'a + IntoIterator<Item = (ConsensusEngineId, &'a [u8])>,
     {
         if let Some(author_index) = F::find_author(digests) {
-            let account_id: AccountId = Session::validators()[author_index as usize].clone();
+            let account_id: AccountId = Session::validators()[author_index as usize];
             return Some(H160::from(account_id));
         }
         None
