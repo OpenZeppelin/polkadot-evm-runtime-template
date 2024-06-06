@@ -1,32 +1,7 @@
 # OpenZeppelin Runtime Template for Substrate
 
-Substrate has a steep learning curve. In order to make it easier for newcomers to get started, OpenZeppelin is providing a generic template that can be used to quickly bootstrap a Substrate project.
+This repository has been archived and is no longer maintained. All ongoing work has been migrated and consolidated into a single repository: [polkadot-runtime-templates](https://github.com/OpenZeppelin/polkadot-runtime-templates).
 
-Along with the templates, OpenZeppelin also provides a documentation website that explains how to add or deduct all the common pallets to your Runtime project (including this template).
+By consolidating our codebase, we aim to enhance collaboration, feedback and make the templates easier to discover.
 
-
-### Usage
-to be filled
-
-
-## Security
-
-> ⚠️ Warning! ⚠️
-> This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
-
-Refer to [SECURITY.md](SECURITY.md) for more details.
-
-
-## License
-
-OpenZeppelin Runtime Template for Substrate is released under the [GNU v3 License](LICENSE).
-
-
-
-
-
-
-
-
-
-
+Please visit and contribute to this [repository](https://github.com/OpenZeppelin/polkadot-runtime-templates).
